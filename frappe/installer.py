@@ -27,6 +27,7 @@ def _new_site(
 	db_type=None,
 	db_host=None,
 	db_port=None,
+	db_path=None,
 	new_site=False,
 ):
 	"""Install a new Frappe site"""
@@ -34,9 +35,12 @@ def _new_site(
 	from frappe.commands.scheduler import _is_scheduler_enabled
 	from frappe.utils import get_site_path, scheduler, touch_file
 
-
 	if not force and os.path.exists(site):
 		print("Site {0} already exists".format(site))
+		sys.exit(1)
+
+	if db_type == "sqlite" and db_path == None:
+		print("No path specified for SQLite Database")
 		sys.exit(1)
 
 	if no_mariadb_socket and not db_type == "mariadb":
@@ -73,6 +77,7 @@ def _new_site(
 		db_host=db_host,
 		db_port=db_port,
 		no_mariadb_socket=no_mariadb_socket,
+		db_path=db_path,
 	)
 	apps_to_install = (
 		["frappe"] + (frappe.conf.get("install_apps") or []) + (list(install_apps) or [])
@@ -94,7 +99,7 @@ def _new_site(
 
 def install_db(root_login="root", root_password=None, db_name=None, source_sql=None,
 			   admin_password=None, verbose=True, force=0, site_config=None, reinstall=False,
-			   db_password=None, db_type=None, db_host=None, db_port=None, no_mariadb_socket=False):
+			   db_password=None, db_type=None, db_host=None, db_port=None, no_mariadb_socket=False, db_path=None):
 	import frappe.database
 	from frappe.database import setup_database
 
@@ -106,7 +111,7 @@ def install_db(root_login="root", root_password=None, db_name=None, source_sql=N
 
 	frappe.flags.root_login = root_login
 	frappe.flags.root_password = root_password
-	setup_database(force, source_sql, verbose, no_mariadb_socket)
+	setup_database(force, source_sql, verbose, no_mariadb_socket, db_path)
 
 	frappe.conf.admin_password = frappe.conf.admin_password or admin_password
 
