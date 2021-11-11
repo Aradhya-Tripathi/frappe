@@ -214,7 +214,7 @@ def init(site, sites_path=None, new_site=False):
 
 	local.initialised = True
 
-def connect(site=None, db_name=None, set_admin_as_user=True):
+def connect(site=None, db_name=None, set_admin_as_user=True, db_path=None):
 	"""Connect to site database instance.
 
 	:param site: If site is given, calls `frappe.init`.
@@ -225,7 +225,10 @@ def connect(site=None, db_name=None, set_admin_as_user=True):
 	if site:
 		init(site)
 
-	local.db = get_db(user=db_name or local.conf.db_name)
+	if local.conf.db_name == "sqlite":
+		local.db = get_db(db_path=db_path)
+	else:
+		local.db = get_db(user=db_name or local.conf.db_name)
 	if set_admin_as_user:
 		set_user("Administrator")
 

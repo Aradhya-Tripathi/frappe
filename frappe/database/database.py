@@ -42,10 +42,13 @@ class Database(object):
 	class InvalidColumnName(frappe.ValidationError): pass
 
 
-	def __init__(self, host=None, user=None, password=None, ac_name=None, use_default=0, port=None):
+	def __init__(self, host=None, user=None, password=None, ac_name=None, use_default=0, port=None, db_path=None):
 		self.setup_type_map()
-		self.host = host or frappe.conf.db_host or '127.0.0.1'
-		self.port = port or frappe.conf.db_port or ''
+		if self.db_type == "sqlite":
+			self.db_path = db_path
+		else:
+			self.host = host or frappe.conf.db_host or '127.0.0.1'
+			self.port = port or frappe.conf.db_port or ''
 		self.user = user or frappe.conf.db_name
 		self.db_name = frappe.conf.db_name
 		self._conn = None
@@ -164,6 +167,9 @@ class Database(object):
 		except Exception as e:
 			if frappe.conf.db_type == 'postgres':
 				self.rollback()
+
+			elif frappe.conf.db_type == 'sqlite':
+				frappe.errprint(e)
 
 			elif self.is_syntax_error(e):
 				# only for mariadb

@@ -81,3 +81,24 @@ class Postgres(Base, PostgreSQLQuery):
 		if isinstance(table, str):
 			table = cls.DocType(table)
 		return super().update(table, *args, **kwargs)
+
+class SQLite(Base, MySQLQuery):
+	Field = terms.Field
+
+	@classmethod
+	def from_(cls, table, *args, **kwargs):
+		if isinstance(table, str):
+			table = cls.DocType(table)
+		return super().from_(table, *args, **kwargs)
+
+	@classmethod
+	def into(cls, table, *args, **kwargs):
+		if isinstance(table, str):
+			table = cls.DocType(table)
+		return super().into(table, *args, **kwargs)
+
+	@classmethod
+	def update(cls, table, *args, **kwargs):
+		if isinstance(table, str):
+			table = cls.DocType(table)
+		return super().update(table, *args, **kwargs)

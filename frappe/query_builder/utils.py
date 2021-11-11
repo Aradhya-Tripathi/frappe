@@ -7,12 +7,13 @@ from pypika.queries import Column
 
 import frappe
 
-from .builder import MariaDB, Postgres
+from .builder import MariaDB, Postgres, SQLite
 
 
 class db_type_is(Enum):
 	MARIADB = "mariadb"
 	POSTGRES = "postgres"
+	SQLITE = "sqlite"
 
 class ImportMapper:
 	def __init__(self, func_map: Dict[db_type_is, Callable]) -> None:
@@ -36,7 +37,11 @@ def get_query_builder(type_of_db: str) -> Union[Postgres, MariaDB]:
 		Query: [Query object]
 	"""
 	db = db_type_is(type_of_db)
-	picks = {db_type_is.MARIADB: MariaDB, db_type_is.POSTGRES: Postgres}
+	picks = {
+		db_type_is.MARIADB: MariaDB,
+		db_type_is.POSTGRES: Postgres,
+		db_type_is.SQLITE: SQLite,
+	}
 	return picks[db]
 
 def get_attr(method_string):

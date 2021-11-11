@@ -4,11 +4,16 @@
 # Database Module
 # --------------------
 
-def setup_database(force, source_sql=None, verbose=None, no_mariadb_socket=False):
+def setup_database(force, source_sql=None, verbose=None, no_mariadb_socket=False, db_path=None):
 	import frappe
 	if frappe.conf.db_type == 'postgres':
 		import frappe.database.postgres.setup_db
 		return frappe.database.postgres.setup_db.setup_database(force, source_sql, verbose)
+
+	elif frappe.conf.db_type == 'sqlite':
+		import frappe.database.sqlite.setup_db
+		return frappe.database.sqlite.setup_db.setup_database(force, db_path=db_path)
+
 	else:
 		import frappe.database.mariadb.setup_db
 		return frappe.database.mariadb.setup_db.setup_database(force, source_sql, verbose, no_mariadb_socket=no_mariadb_socket)
@@ -21,11 +26,16 @@ def drop_user_and_database(db_name, root_login=None, root_password=None):
 		import frappe.database.mariadb.setup_db
 		return frappe.database.mariadb.setup_db.drop_user_and_database(db_name, root_login, root_password)
 
-def get_db(host=None, user=None, password=None, port=None):
+def get_db(host=None, user=None, password=None, port=None, db_path=None):
 	import frappe
 	if frappe.conf.db_type == 'postgres':
 		import frappe.database.postgres.database
 		return frappe.database.postgres.database.PostgresDatabase(host, user, password, port=port)
+
+	elif frappe.conf.db_type == 'sqlite':
+		import frappe.database.sqlite.database
+		return frappe.database.sqlite.database.SQLite(db_path=db_path)
+
 	else:
 		import frappe.database.mariadb.database
 		return frappe.database.mariadb.database.MariaDBDatabase(host, user, password, port=port)
