@@ -16,7 +16,8 @@ from frappe.exceptions import SiteNotSpecifiedError
 @click.argument('site')
 @click.option('--db-name', help='Database name')
 @click.option('--db-password', help='Database password')
-@click.option('--db-type', default='mariadb', type=click.Choice(['mariadb', 'postgres']), help='Optional "postgres" or "mariadb". Default is "mariadb"')
+@click.option('--db-type', default='mariadb', type=click.Choice(['mariadb', 'postgres', 'sqlite']), help='Optional "postgres", "mariadb" or "sqlite". Default is "mariadb"')
+@click.option('--db-path', default=None, help='Path to SQL file')
 @click.option('--db-host', help='Database Host')
 @click.option('--db-port', type=int, help='Database Port')
 @click.option('--mariadb-root-username', default='root', help='Root username for MariaDB')
@@ -29,7 +30,7 @@ from frappe.exceptions import SiteNotSpecifiedError
 @click.option('--install-app', multiple=True, help='Install app after installation')
 def new_site(site, mariadb_root_username=None, mariadb_root_password=None, admin_password=None,
 			 verbose=False, install_apps=None, source_sql=None, force=None, no_mariadb_socket=False,
-			 install_app=None, db_name=None, db_password=None, db_type=None, db_host=None, db_port=None):
+			 install_app=None, db_name=None, db_password=None, db_type=None, db_host=None, db_port=None, db_path=None):
 	"Create a new site"
 	from frappe.installer import _new_site
 
@@ -39,7 +40,7 @@ def new_site(site, mariadb_root_username=None, mariadb_root_password=None, admin
 			  mariadb_root_password=mariadb_root_password, admin_password=admin_password,
 			  verbose=verbose, install_apps=install_app, source_sql=source_sql, force=force,
 			  no_mariadb_socket=no_mariadb_socket, db_password=db_password, db_type=db_type, db_host=db_host,
-			  db_port=db_port, new_site=True)
+			  db_port=db_port, new_site=True, db_path=db_path)
 
 	if len(frappe.utils.get_sites()) == 1:
 		use(site)
