@@ -1,4 +1,6 @@
 import sqlite3
+
+import frappe
 from frappe.database.database import Database
 
 
@@ -40,5 +42,7 @@ class SQLite(Database):
         }
 
     def get_connection(self):
+        if not self.db_path:
+            self.db_path = frappe.conf.db_path
         conn = sqlite3.connect(self.db_path)
         return conn

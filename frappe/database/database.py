@@ -4,23 +4,24 @@
 # Database Module
 # --------------------
 
+import datetime
 import re
 import time
+from time import time
 from typing import Dict, List, Union
+
+from pypika.terms import Criterion, PseudoColumn
+
 import frappe
-import datetime
 import frappe.defaults
 import frappe.model.meta
-
 from frappe import _
-from time import time
-from frappe.utils import now, getdate, cast, get_datetime
 from frappe.model.utils.link_count import flush_local_link_count
-from frappe.query_builder.functions import Count
-from frappe.query_builder.functions import Min, Max, Avg, Sum
+from frappe.query_builder.functions import Avg, Count, Max, Min, Sum
 from frappe.query_builder.utils import Column
+from frappe.utils import cast, get_datetime, getdate, now
+
 from .query import Query
-from pypika.terms import Criterion, PseudoColumn
 
 
 class Database(object):
@@ -842,8 +843,9 @@ class Database(object):
 
 	def get_creation_count(self, doctype, minutes):
 		"""Get count of records created in the last x minutes"""
-		from frappe.utils import now_datetime
 		from dateutil.relativedelta import relativedelta
+
+		from frappe.utils import now_datetime
 
 		return self.sql("""select count(name) from `tab{doctype}`
 			where creation >= %s""".format(doctype=doctype),

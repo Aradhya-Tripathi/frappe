@@ -1,32 +1,48 @@
+import subprocess
 import frappe
+import os
 
 
 def setup_database(force, source_sql=None, verbose=False, db_path=None):
     root_conn = get_root_connection(db_path)
+    if frappe.conf.db_type == "sqlite":
+        root_conn.sql("begin")
+
     root_conn.commit()
-    root_conn.sql("DROP DATABASE IF EXISTS `{0}`".format(frappe.conf.db_name))
-    root_conn.sql("DROP USER IF EXISTS {0}".format(frappe.conf.db_name))
-    root_conn.sql("CREATE DATABASE `{0}`".format(frappe.conf.db_name))
-    root_conn.sql(
-        "CREATE user {0} password '{1}'".format(
-            frappe.conf.db_name, frappe.conf.db_password
-        )
-    )
-    root_conn.sql(
-        "GRANT ALL PRIVILEGES ON DATABASE `{0}` TO {0}".format(frappe.conf.db_name)
-    )
     root_conn.close()
 
     bootstrap_database(frappe.conf.db_name, verbose, source_sql=source_sql)
     frappe.connect()
 
 
-def bootstrap_database(*args, **kwargs):
-    pass
+def bootstrap_database(db_name, verbose, source_sql=None):
+    frappe.connect(db_name=db_name)
+    if verbose:
+        print("Loading in SQL from source")
+
+    import_db_from_sql(source_sql, verbose)
+
+
+def import_db_from_sql(source_sql: str = None, verbose: bool = False):
+    from subprocess import run
+
+    subprocess_env = os.environ.copy()
+
+    if not source_sql:
+        source_sql = os.path.join(os.path.dirname(__file__), "framework_sqlite.sql")
+
+    print("Restoring Database file...")
+    _command = f"sqlite3 {frappe.conf.db_path} -init {source_sql}"
+    if verbose:
+        print(_command)
+
+    run(_command, env=subprocess_env, shell=True)
 
 
 def get_root_connection(db_path: str):
     if not frappe.local.flags.root_connection:
+        if not db_path:
+            db_path = frappe.conf.db_path
         frappe.local.flags.root_connection = frappe.database.get_db(db_path=db_path)
 
     return frappe.local.flags.root_connection
