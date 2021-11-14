@@ -24,19 +24,10 @@ def bootstrap_database(db_name, verbose, source_sql=None):
 
 
 def import_db_from_sql(source_sql: str = None, verbose: bool = False):
-    from subprocess import run
-
-    subprocess_env = os.environ.copy()
-
     if not source_sql:
         source_sql = os.path.join(os.path.dirname(__file__), "framework_sqlite.sql")
 
     print("Restoring Database file...")
-    _command = f"sqlite3 {frappe.conf.db_path} -init {source_sql}"
-    if verbose:
-        print(_command)
-
-    run(_command, env=subprocess_env, shell=True)
 
 
 def get_root_connection(db_path: str):
